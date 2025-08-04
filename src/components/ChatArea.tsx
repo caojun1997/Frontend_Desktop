@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import aliCloudService from '../services/aliCloudService';
 
 interface Message {
   id: string;
@@ -15,7 +16,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ sessionId }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: '你好！今天你想问什么？',
+      content: '你好！我是通义千问AI助手，可以帮您解答问题、协助工作。有什么我可以帮助您的吗？',
       isUser: false,
       timestamp: new Date()
     }
@@ -31,7 +32,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ sessionId }) => {
       setMessages([
         {
           id: '1',
-          content: '你好！今天你想问什么？',
+          content: '你好！我是通义千问AI助手，可以帮您解答问题、协助工作。有什么我可以帮助您的吗？',
           isUser: false,
           timestamp: new Date()
         }
@@ -61,17 +62,39 @@ const ChatArea: React.FC<ChatAreaProps> = ({ sessionId }) => {
     setInputValue('');
     setIsLoading(true);
 
-    // 模拟AI回复延迟
-    setTimeout(() => {
+    try {
+      // 获取最近的对话历史（最多10条）来提供上下文
+      const recentMessages = [...messages, userMessage].slice(-10);
+      
+      // 转换为阿里云API格式
+      const apiMessages = aliCloudService.convertToAliCloudFormat(recentMessages);
+      
+      // 调用阿里云API
+      const aiResponse = await aliCloudService.sendMessage(apiMessages);
+      
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: `我收到了你的消息："${userMessage.content}"。这是一个模拟回复。`,
+        content: aiResponse,
         isUser: false,
         timestamp: new Date()
       };
+      
       setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('发送消息失败:', error);
+      
+      // 显示错误消息
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: `抱歉，发生了错误：${error instanceof Error ? error.message : '未知错误'}。请稍后重试。`,
+        isUser: false,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -93,7 +116,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ sessionId }) => {
       <div className="chat-header">
         <div className="chat-title">
           <div>
-            <h3>你好</h3>
+            <h3>通义千问AI助手</h3>
             <span className="status">在线</span>
           </div>
         </div>
@@ -144,7 +167,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ sessionId }) => {
               disabled={!inputValue.trim() || isLoading}
               title="发送"
             >
-              发送
+              {isLoading ? '发送中...' : '发送'}
             </button>
           </div>
         </div>
