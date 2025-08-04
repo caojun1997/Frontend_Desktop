@@ -92,7 +92,6 @@ const ChatArea: React.FC<ChatAreaProps> = ({ sessionId }) => {
     <div className="chat-area">
       <div className="chat-header">
         <div className="chat-title">
-          <div className="avatar">🤖</div>
           <div>
             <h3>你好</h3>
             <span className="status">在线</span>
@@ -106,9 +105,6 @@ const ChatArea: React.FC<ChatAreaProps> = ({ sessionId }) => {
             key={message.id}
             className={`message ${message.isUser ? 'user-message' : 'ai-message'}`}
           >
-            <div className="message-avatar">
-              {message.isUser ? '👤' : '🤖'}
-            </div>
             <div className="message-content">
               <div className="message-text">{message.content}</div>
               <div className="message-time">{formatTime(message.timestamp)}</div>
@@ -118,7 +114,6 @@ const ChatArea: React.FC<ChatAreaProps> = ({ sessionId }) => {
         
         {isLoading && (
           <div className="message ai-message">
-            <div className="message-avatar">🤖</div>
             <div className="message-content">
               <div className="typing-indicator">
                 <span></span>
@@ -143,15 +138,13 @@ const ChatArea: React.FC<ChatAreaProps> = ({ sessionId }) => {
             disabled={isLoading}
           />
           <div className="input-actions">
-            <button className="attach-btn" title="附件">📎</button>
-            <button className="voice-btn" title="语音">🎤</button>
             <button 
               className="send-btn" 
               onClick={handleSendMessage}
               disabled={!inputValue.trim() || isLoading}
               title="发送"
             >
-              ↗
+              发送
             </button>
           </div>
         </div>
