@@ -12,13 +12,15 @@ interface SessionListProps {
   onToggleExpand: () => void;
   onSessionSelect: (sessionId: string) => void;
   selectedSessionId?: string;
+  width?: number;
 }
 
 const SessionList: React.FC<SessionListProps> = ({
   isExpanded,
   onToggleExpand,
   onSessionSelect,
-  selectedSessionId
+  selectedSessionId,
+  width = 280
 }) => {
   const [sessions] = useState<Session[]>([
     {
@@ -53,7 +55,10 @@ const SessionList: React.FC<SessionListProps> = ({
   };
 
   return (
-    <div className={`session-list ${isExpanded ? 'expanded' : 'collapsed'}`}>
+    <div 
+      className={`session-list ${isExpanded ? 'expanded' : 'collapsed'}`}
+      style={{ width: width }}
+    >
       <div className="session-header">
         <button 
           className="expand-toggle"

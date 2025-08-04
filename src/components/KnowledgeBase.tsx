@@ -1,74 +1,131 @@
 import React, { useState } from 'react';
 
-interface KnowledgeItem {
+interface KnowledgeDocument {
   id: string;
-  title: string;
-  content: string;
-  category: string;
-  tags: string[];
+  name: string;
+  type: 'md' | 'txt' | 'pdf' | 'doc';
+  status: 'success' | 'error' | 'processing';
+  size?: string;
+  lastModified?: Date;
+  isSelected: boolean;
+}
+
+interface KnowledgeLibrary {
+  id: string;
+  name: string;
+  documents: KnowledgeDocument[];
 }
 
 interface KnowledgeBaseProps {
   isExpanded: boolean;
   onToggleExpand: () => void;
+  width?: number;
 }
 
 const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
   isExpanded,
-  onToggleExpand
+  onToggleExpand,
+  width = 320
 }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [knowledgeItems] = useState<KnowledgeItem[]>([
+  const [selectedLibraryId, setSelectedLibraryId] = useState<string>('default');
+  
+  const [knowledgeLibraries] = useState<KnowledgeLibrary[]>([
     {
-      id: '1',
-      title: 'React Hooks 基础',
-      content: 'React Hooks 是 React 16.8 的新增特性。它可以让你在不编写 class 的情况下使用 state 以及其他的 React 特性。',
-      category: 'frontend',
-      tags: ['React', 'Hooks', '前端']
+      id: 'default',
+      name: '选择知识库',
+      documents: [
+        {
+          id: '1',
+          name: 'DeepChat接口对接说明.md',
+          type: 'md',
+          status: 'success',
+          size: '2.3KB',
+          lastModified: new Date('2025-08-01'),
+          isSelected: true
+        },
+        {
+          id: '2',
+          name: '斗破.txt',
+          type: 'txt',
+          status: 'error',
+          size: '156MB',
+          lastModified: new Date('2025-07-30'),
+          isSelected: false
+        },
+        {
+          id: '3',
+          name: 'API文档.md',
+          type: 'md',
+          status: 'success',
+          size: '5.7KB',
+          lastModified: new Date('2025-07-29'),
+          isSelected: true
+        }
+      ]
     },
     {
-      id: '2',
-      title: 'TypeScript 类型系统',
-      content: 'TypeScript 是 JavaScript 的一个超集，它添加了可选的静态类型定义。TypeScript 通过类型系统帮助开发者在开发时发现错误。',
-      category: 'programming',
-      tags: ['TypeScript', '类型', '编程']
-    },
-    {
-      id: '3',
-      title: 'CSS Grid 布局',
-      content: 'CSS Grid 是一个二维的布局系统，可以处理行和列，使得网页布局变得更加简单和灵活。',
-      category: 'frontend',
-      tags: ['CSS', 'Grid', '布局']
-    },
-    {
-      id: '4',
-      title: 'Node.js 异步编程',
-      content: 'Node.js 基于事件驱动的非阻塞 I/O 模型，使用回调函数、Promise 和 async/await 来处理异步操作。',
-      category: 'backend',
-      tags: ['Node.js', '异步', '后端']
+      id: 'tech',
+      name: '技术文档库',
+      documents: [
+        {
+          id: '4',
+          name: 'React开发指南.md',
+          type: 'md',
+          status: 'success',
+          size: '12KB',
+          lastModified: new Date('2025-08-02'),
+          isSelected: true
+        },
+        {
+          id: '5',
+          name: 'TypeScript手册.pdf',
+          type: 'pdf',
+          status: 'processing',
+          size: '3.2MB',
+          lastModified: new Date('2025-08-01'),
+          isSelected: false
+        }
+      ]
     }
   ]);
 
-  const categories = [
-    { value: 'all', label: '全部' },
-    { value: 'frontend', label: '前端' },
-    { value: 'backend', label: '后端' },
-    { value: 'programming', label: '编程' }
-  ];
+  const selectedLibrary = knowledgeLibraries.find(lib => lib.id === selectedLibraryId);
+  const allDocumentsSelected = selectedLibrary?.documents.every(doc => doc.isSelected) || false;
 
-  const filteredItems = knowledgeItems.filter(item => {
-    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
-    
-    return matchesSearch && matchesCategory;
-  });
+  const getFileIcon = (type: string) => {
+    switch (type) {
+      case 'md': return '📄';
+      case 'txt': return '📝';
+      case 'pdf': return '📋';
+      case 'doc': return '📃';
+      default: return '📄';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'success': return '✓';
+      case 'error': return 'ⓘ';
+      case 'processing': return '⟳';
+      default: return '';
+    }
+  };
+
+  const toggleAllDocuments = () => {
+    // 这里应该更新文档选择状态的逻辑
+    console.log('Toggle all documents');
+  };
+
+  const toggleDocument = (docId: string) => {
+    // 这里应该更新单个文档选择状态的逻辑
+    console.log('Toggle document', docId);
+  };
 
   return (
-    <div className={`knowledge-base ${isExpanded ? 'expanded' : 'collapsed'}`}>
+    <div 
+      className={`knowledge-base ${isExpanded ? 'expanded' : 'collapsed'}`}
+      style={{ width: width }}
+    >
       <div className="knowledge-header">
         <button 
           className="expand-toggle"
@@ -82,62 +139,73 @@ const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
       
       {isExpanded && (
         <div className="knowledge-content">
-          <div className="search-section">
-            <input
-              type="text"
-              placeholder="搜索知识库..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
+          {/* 来源选择区域 */}
+          <div className="knowledge-source-section">
+            <div className="source-header">
+              <span className="source-label">来源</span>
+              <select 
+                className="library-select"
+                value={selectedLibraryId}
+                onChange={(e) => setSelectedLibraryId(e.target.value)}
+              >
+                {knowledgeLibraries.map(library => (
+                  <option key={library.id} value={library.id}>
+                    {library.name}
+                  </option>
+                ))}
+              </select>
+              <button className="minimize-btn" title="最小化">
+                📄
+              </button>
+            </div>
             
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="category-select"
-            >
-              {categories.map(category => (
-                <option key={category.value} value={category.value}>
-                  {category.label}
-                </option>
-              ))}
-            </select>
+            {/* 操作按钮区域 */}
+            <div className="action-buttons">
+              <button className="action-btn add-btn">
+                ➕ 添加
+              </button>
+              <button className="action-btn search-btn">
+                🔍 探索
+              </button>
+            </div>
           </div>
 
-          <div className="knowledge-items">
-            {filteredItems.length === 0 ? (
-              <div className="no-results">
-                <p>没有找到相关知识</p>
-              </div>
-            ) : (
-              filteredItems.map(item => (
-                <div key={item.id} className="knowledge-item">
-                  <h4 className="item-title">{item.title}</h4>
-                  <p className="item-content">{item.content}</p>
-                  <div className="item-tags">
-                    {item.tags.map(tag => (
-                      <span key={tag} className="tag">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="item-actions">
-                    <button className="use-btn" title="使用此知识">
-                      使用
-                    </button>
-                    <button className="copy-btn" title="复制内容">
-                      📋
-                    </button>
-                  </div>
+          {/* 文档列表区域 */}
+          <div className="documents-section">
+            {/* 全选选项 */}
+            <div className="select-all-option">
+              <label className="document-item">
+                <input 
+                  type="checkbox" 
+                  checked={allDocumentsSelected}
+                  onChange={toggleAllDocuments}
+                />
+                <span className="document-name">选择所有来源</span>
+                <span className="document-status success">✓</span>
+              </label>
+            </div>
+
+            {/* 文档列表 */}
+            <div className="documents-list">
+              {selectedLibrary?.documents.map(document => (
+                <div key={document.id} className="document-item">
+                  <label className="document-label">
+                    <input 
+                      type="checkbox" 
+                      checked={document.isSelected}
+                      onChange={() => toggleDocument(document.id)}
+                    />
+                    <span className="file-icon">
+                      {getFileIcon(document.type)}
+                    </span>
+                    <span className="document-name">{document.name}</span>
+                    <span className={`document-status ${document.status}`}>
+                      {getStatusIcon(document.status)}
+                    </span>
+                  </label>
                 </div>
-              ))
-            )}
-          </div>
-
-          <div className="knowledge-footer">
-            <button className="add-knowledge-btn">
-              ➕ 添加知识
-            </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -145,11 +213,11 @@ const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
       {!isExpanded && (
         <div className="collapsed-content">
           <div className="collapsed-knowledge-items">
-            {filteredItems.slice(0, 4).map((item) => (
+            {selectedLibrary?.documents.slice(0, 4).map((item) => (
               <div
                 key={item.id}
                 className="collapsed-knowledge-item"
-                title={item.title}
+                title={item.name}
               >
                 📚
               </div>
