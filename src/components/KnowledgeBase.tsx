@@ -36,78 +36,60 @@ const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
   const [knowledgeLibraries] = useState<KnowledgeLibrary[]>([
     {
       id: 'default',
-      name: '选择知识库',
+      name: '默认知识库',
       documents: [
         {
           id: '1',
-          name: 'DeepChat接口对接说明.md',
-          type: 'md',
+          name: '商业计划书.pdf',
+          type: 'pdf',
           status: 'success',
-          size: '2.3KB',
+          size: '2.3MB',
           lastModified: new Date('2025-08-01'),
           isSelected: true
         },
         {
           id: '2',
-          name: '斗破.txt',
-          type: 'txt',
-          status: 'error',
-          size: '156MB',
-          lastModified: new Date('2025-07-30'),
-          isSelected: false
-        },
-        {
-          id: '3',
-          name: 'API文档.md',
-          type: 'md',
+          name: '市场调研报告.docx',
+          type: 'doc',
           status: 'success',
-          size: '5.7KB',
-          lastModified: new Date('2025-07-29'),
+          size: '1.8MB',
+          lastModified: new Date('2025-07-30'),
           isSelected: true
         },
         {
-          id: '4',
-          name: '产品需求文档.pdf',
-          type: 'pdf',
+          id: '3',
+          name: '竞品分析.md',
+          type: 'md',
           status: 'processing',
-          size: '12.5MB',
-          lastModified: new Date('2025-08-02'),
+          size: '156KB',
+          lastModified: new Date('2025-07-29'),
           isSelected: false
         },
         {
-          id: '5',
-          name: '用户手册.docx',
-          type: 'doc',
+          id: '4',
+          name: '用户画像分析.txt',
+          type: 'txt',
           status: 'success',
-          size: '8.9MB',
+          size: '89KB',
           lastModified: new Date('2025-07-28'),
           isSelected: true
         },
         {
-          id: '6',
-          name: '项目总结报告.txt',
-          type: 'txt',
-          status: 'success',
-          size: '1.2MB',
-          lastModified: new Date('2025-07-25'),
-          isSelected: false
-        },
-        {
-          id: '7',
-          name: '技术架构设计.md',
-          type: 'md',
-          status: 'error',
-          size: '4.1KB',
-          lastModified: new Date('2025-07-24'),
-          isSelected: false
-        },
-        {
-          id: '8',
-          name: '数据库设计文档.pdf',
+          id: '5',
+          name: '财务预算表.pdf',
           type: 'pdf',
+          status: 'error',
+          size: '567KB',
+          lastModified: new Date('2025-07-27'),
+          isSelected: false
+        },
+        {
+          id: '6',
+          name: '运营策略方案.docx',
+          type: 'doc',
           status: 'success',
-          size: '25.7MB',
-          lastModified: new Date('2025-07-23'),
+          size: '2.1MB',
+          lastModified: new Date('2025-07-26'),
           isSelected: true
         }
       ]
@@ -375,16 +357,6 @@ const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
   const selectedLibrary = knowledgeLibraries.find(lib => lib.id === selectedLibraryId);
   const allDocumentsSelected = selectedLibrary?.documents.every(doc => doc.isSelected) || false;
 
-  const getFileIcon = (type: string) => {
-    switch (type) {
-      case 'md': return '';
-      case 'txt': return '';
-      case 'pdf': return '';
-      case 'doc': return '';
-      default: return '';
-    }
-  };
-
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'success': return '✓';
@@ -454,42 +426,37 @@ const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
       
       {isExpanded && (
         <div className="knowledge-content">
-          {/* 来源选择区域 */}
-          <div className="knowledge-source-section">
-            <div className="source-header">
-              <span className="source-label">来源</span>
-              <select 
-                className="library-select"
-                value={selectedLibraryId}
-                onChange={(e) => setSelectedLibraryId(e.target.value)}
-              >
-                {knowledgeLibraries.map(library => (
-                  <option key={library.id} value={library.id}>
-                    {library.name}
-                  </option>
-                ))}
-              </select>
-              <button className="minimize-btn" title="最小化">
-                −
-              </button>
-            </div>
-            
-            {/* 操作按钮区域 */}
-            <div className="action-buttons">
-              <button className="action-btn add-btn" onClick={handleAddClick}>
-                添加
-              </button>
-              <button className="action-btn search-btn" onClick={handleExploreClick}>
-                探索
-              </button>
-            </div>
+          {/* 知识库选择区域 */}
+          <div className="library-selection-section">
+            <label className="library-label">选择知识库:</label>
+            <select 
+              className="library-select"
+              value={selectedLibraryId}
+              onChange={(e) => setSelectedLibraryId(e.target.value)}
+            >
+              {knowledgeLibraries.map(library => (
+                <option key={library.id} value={library.id}>
+                  {library.name}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* 文档列表区域 */}
+          {/* 操作按钮区域 */}
+          <div className="action-buttons">
+            <button className="action-btn search-btn" onClick={handleExploreClick}>
+              探索
+            </button>
+            <button className="action-btn add-btn" onClick={handleAddClick}>
+              添加
+            </button>
+          </div>
+
+          {/* 文档选择区域 */}
           <div className="documents-section">
             {/* 全选选项 */}
             <div className="select-all-option">
-              <label className="document-item">
+              <label className="document-item select-all-item">
                 <input 
                   type="checkbox" 
                   checked={allDocumentsSelected}
@@ -510,9 +477,6 @@ const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
                       checked={document.isSelected}
                       onChange={() => toggleDocument(document.id)}
                     />
-                    <span className="file-icon">
-                      {getFileIcon(document.type)}
-                    </span>
                     <span className="document-name">{document.name}</span>
                     <span className={`document-status ${document.status}`}>
                       {getStatusIcon(document.status)}
